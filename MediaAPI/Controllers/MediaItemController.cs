@@ -49,6 +49,11 @@ namespace MediaAPI.Controllers
                                         DateAdded = mi.DateAdded
                                       };
 
+      if (mediaItems.Count() == 0)
+      {
+        return NotFound();
+      }
+
       return Ok(mediaItems);
     }
 
