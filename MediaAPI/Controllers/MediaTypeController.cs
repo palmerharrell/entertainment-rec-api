@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
+using MediaAPI.Models;
 
 namespace MediaAPI.Controllers
 {
@@ -12,11 +13,26 @@ namespace MediaAPI.Controllers
   [EnableCors("AllowDevelopmentEnvironment")]
   public class MediaTypeController : Controller
   {
-    // GET: api/values
-    [HttpGet]
-    public IEnumerable<string> Get()
+    private MediaDbContext _context;
+
+    public MediaTypeController(MediaDbContext context)
     {
-      return new string[] { "value1", "value2" };
+      _context = context;
+    }
+
+    // GET: api/mediatype
+    [HttpGet]
+    public IActionResult Get()
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      IQueryable<MediaType> mediaTypes = from mt in _context.MediaType
+                                        select mt;
+
+      return Ok(mediaTypes);
     }
 
     // GET api/values/5
