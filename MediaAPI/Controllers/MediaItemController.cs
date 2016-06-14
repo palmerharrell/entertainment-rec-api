@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
+using MediaAPI.Models;
 
 namespace MediaAPI.Controllers
 {
@@ -12,18 +13,38 @@ namespace MediaAPI.Controllers
   [EnableCors("AllowDevelopmentEnvironment")]
   public class MediaItemController : Controller
   {
-    // GET: api/values
-    [HttpGet]
-    public IEnumerable<string> Get()
+    private MediaDbContext _context;
+
+    public MediaItemController(MediaDbContext context)
     {
-      return new string[] { "value1", "value2" };
+      _context = context;
     }
 
-    // GET api/values/5
-    [HttpGet("{id}")]
-    public string Get(int id)
+    // GET: api/mediaitem?userid=2
+    [HttpGet]
+    public IActionResult Get([FromQuery]int userid)
     {
-      return "value";
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      IQueryable<object> mediaItems = from mi in _context.MediaItem
+                                      where mi.IdAppUser == userid
+                                      select new
+                                      {
+                                        IdMediaItem = mi.IdMediaItem,
+                                        IdMediaType = mi.IdMediaType,
+                                        Name = mi.Name,
+                                        Recommender = mi.Recommender,
+                                        Notes = mi.Notes,
+                                        Finished = mi.Finished,
+                                        Favorite = mi.Favorite,
+                                        Rating = mi.Rating,
+                                        DateAdded = mi.DateAdded
+                                      };
+
+      return Ok(mediaItems);
     }
 
     // POST api/values
