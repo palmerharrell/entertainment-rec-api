@@ -30,6 +30,7 @@ namespace MediaAPI.Controllers
                                          select new
                                          {
                                            Name = mt.Name,
+                                           ColorName = mt.ColorName,
                                            ColorLight = mt.ColorLight,
                                            ColorDark = mt.ColorDark
                                          };
