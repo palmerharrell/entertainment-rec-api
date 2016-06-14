@@ -71,7 +71,7 @@ namespace MediaAPI.Controllers
     {
     }
 
-    // DELETE api/values/5
+    // DELETE api/mediaitem?itemid=6&userid=1
     [HttpDelete]
     public IActionResult Delete([FromQuery]int? userId, [FromQuery]int? itemId)
     {
@@ -80,11 +80,21 @@ namespace MediaAPI.Controllers
         return BadRequest(ModelState);
       }
 
+      if (userId == null)
+      {
+        return NotFound();
+      }
+
       MediaItem mediaItem = _context.MediaItem.FirstOrDefault(mi => mi.IdMediaItem == itemId);
 
       if (mediaItem == null)
       {
         return NotFound();
+      }
+
+      if (mediaItem.IdAppUser != userId)
+      {
+        return NotFound(new { message = "User does not have permission to delete this item" });
       }
 
       _context.MediaItem.Remove(mediaItem);
