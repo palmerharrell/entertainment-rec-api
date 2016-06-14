@@ -72,9 +72,25 @@ namespace MediaAPI.Controllers
     }
 
     // DELETE api/values/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
+    [HttpDelete]
+    public IActionResult Delete([FromQuery]int? userId, [FromQuery]int? itemId)
     {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      MediaItem mediaItem = _context.MediaItem.FirstOrDefault(mi => mi.IdMediaItem == itemId);
+
+      if (mediaItem == null)
+      {
+        return NotFound();
+      }
+
+      _context.MediaItem.Remove(mediaItem);
+      _context.SaveChanges();
+
+      return Ok(mediaItem);
     }
   }
 }
