@@ -31,8 +31,19 @@ namespace MediaAPI
     {
       // Add framework services.
       services.AddMvc();
+
+      // DB Connection
       var connection = @"Server=(localdb)\mssqllocaldb;Database=MediaDb;Trusted_Connection=True;";
       services.AddDbContext<MediaDbContext>(options => options.UseSqlServer(connection));
+
+      // CORS
+      services.AddCors(options =>
+      {
+        options.AddPolicy("AllowDevelopmentEnvironment",
+          builder => builder.AllowAnyOrigin()
+          .AllowAnyMethod()
+          .AllowAnyHeader());
+      });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
