@@ -22,15 +22,20 @@ namespace MediaAPI.Controllers
 
     // GET: api/mediaitem?userid=2
     [HttpGet]
-    public IActionResult Get([FromQuery]int userid)
+    public IActionResult Get([FromQuery]int? userId)
     {
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
       }
 
+      if (userId == null)
+      {
+        return NotFound();
+      }
+
       IQueryable<object> mediaItems = from mi in _context.MediaItem
-                                      where mi.IdAppUser == userid
+                                      where mi.IdAppUser == userId
                                       select new
                                       {
                                         IdMediaItem = mi.IdMediaItem,
