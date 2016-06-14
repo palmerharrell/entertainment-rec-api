@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
+using MediaAPI.Models;
 
 namespace MediaAPI.Controllers
 {
@@ -12,19 +13,29 @@ namespace MediaAPI.Controllers
   [EnableCors("AllowDevelopmentEnvironment")]
   public class AppUserController : Controller
   {
-    // GET: api/values
-    [HttpGet]
-    public IEnumerable<string> Get()
+    private MediaDbContext _context;
+
+    public AppUserController(MediaDbContext context)
     {
-      return new string[] { "value1", "value2" };
+      _context = context;
     }
 
-    // GET api/values/5
-    [HttpGet("{id}")]
-    public string Get(int id)
+    // GET: api/appuser
+    [HttpGet]
+    public IActionResult Get()
     {
-      return "value";
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      IQueryable<AppUser> appUsers = from au in _context.AppUser
+                                     select au;
+
+      return Ok(appUsers);
     }
+
+
 
     // POST api/values
     [HttpPost]

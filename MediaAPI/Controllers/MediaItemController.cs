@@ -31,7 +31,7 @@ namespace MediaAPI.Controllers
 
       if (userId == null)
       {
-        return NotFound();
+        return NotFound(new { message = "No userId submitted" });
       }
 
       IQueryable<object> mediaItems = from mi in _context.MediaItem
@@ -51,11 +51,13 @@ namespace MediaAPI.Controllers
 
       if (mediaItems.Count() == 0)
       {
-        return NotFound();
+        return NotFound(new { message = "User has not created any items or user does not exist" });
       }
 
       return Ok(mediaItems);
     }
+
+
 
     // POST api/values
     [HttpPost]
