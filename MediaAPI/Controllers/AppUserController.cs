@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using MediaAPI.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaAPI.Controllers
 {
@@ -35,24 +37,57 @@ namespace MediaAPI.Controllers
       return Ok(appUsers);
     }
 
+    // GET api/appuser/5 (specific appuser by id)
+    [HttpGet("{id}", Name = "GetAppUser")]
+    public IActionResult Get(int id)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
 
+      AppUser appUser = _context.AppUser.Single(au => au.IdAppUser == id);
 
-    // POST api/values
+      if (appUser == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(appUser);
+    }
+
+    // POST api/appuser
     [HttpPost]
-    public void Post([FromBody]string value)
+    public IActionResult Post([FromBody]AppUser newUser)
     {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      _context.AppUser.Add(newUser);
+      try
+      {
+        _context.SaveChanges();
+      }
+      catch (DbUpdateException)
+      {
+        if (UserExists(newUser.IdAppUser))
+        {
+          return new StatusCodeResult(StatusCodes.Status409Conflict);
+        }
+        else
+        {
+          throw;
+        }
+      }
+      return CreatedAtRoute("GetAppUser", new { id = newUser.IdAppUser }, newUser);
+
     }
 
-    // PUT api/values/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody]string value)
+    private bool UserExists(int id)
     {
-    }
-
-    // DELETE api/values/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
-    {
+      return _context.AppUser.Count(au => au.IdAppUser == id) > 0;
     }
   }
 }
