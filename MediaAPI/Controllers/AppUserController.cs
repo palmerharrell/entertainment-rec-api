@@ -22,9 +22,10 @@ namespace MediaAPI.Controllers
       _context = context;
     }
 
-    // GET: api/appuser
+    // GET: api/appuser (all AppUsers)
+    // GET: api/appuser?username=githubAlias (AppUser by username)
     [HttpGet]
-    public IActionResult Get()
+    public IActionResult Get([FromQuery] string username)
     {
       if (!ModelState.IsValid)
       {
@@ -33,6 +34,16 @@ namespace MediaAPI.Controllers
 
       IQueryable<AppUser> appUsers = from au in _context.AppUser
                                      select au;
+
+      if (username != null)
+      {
+        appUsers = appUsers.Where(au => au.Username == username);
+      }
+
+      if (appUsers == null)
+      {
+        return NotFound();
+      }
 
       return Ok(appUsers);
     }
@@ -63,6 +74,15 @@ namespace MediaAPI.Controllers
       if (!ModelState.IsValid)
       {
         return BadRequest(ModelState);
+      }
+
+      var existingUser = from au in _context.AppUser
+                         where au.Username == newUser.Username
+                         select au;
+
+      if (existingUser.Count<AppUser>() > 0)
+      {
+        return new StatusCodeResult(StatusCodes.Status409Conflict);
       }
 
       _context.AppUser.Add(newUser);
