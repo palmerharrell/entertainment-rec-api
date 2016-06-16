@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using MediaAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaAPI.Controllers
 {
@@ -101,13 +102,47 @@ namespace MediaAPI.Controllers
       return CreatedAtRoute("GetMediaItem", new { id = mediaItem.IdMediaItem }, mediaItem);
     }
 
-    // PUT api/values/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody]string value)
+    // PUT api/mediaitem?userid=12
+    [HttpPut]
+    public IActionResult Put([FromQuery]int? userId, [FromBody]MediaItem updatedMediaItem)
     {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      if (userId == null)
+      {
+        return NotFound();
+      }
+
+      if (updatedMediaItem.IdAppUser != userId)
+      {
+        return NotFound(new { message = "User does not have permission to edit this item" });
+      }
+
+      _context.Entry(updatedMediaItem).State = EntityState.Modified;
+
+      try
+      {
+        _context.SaveChanges();
+      }
+      catch (DbUpdateConcurrencyException)
+      {
+        if (!MediaItemExists(updatedMediaItem.IdMediaItem))
+        {
+          return NotFound();
+        }
+        else
+        {
+          throw;
+        }
+      }
+
+      return new StatusCodeResult(StatusCodes.Status204NoContent);
     }
 
-    // DELETE api/mediaitem?itemid=6&userid=1
+    // DELETE api/mediaitem?userid=1&itemid=6
     [HttpDelete]
     public IActionResult Delete([FromQuery]int? userId, [FromQuery]int? itemId)
     {
@@ -137,6 +172,11 @@ namespace MediaAPI.Controllers
       _context.SaveChanges();
 
       return Ok(mediaItem);
+    }
+
+    private bool MediaItemExists(int id)
+    {
+      return _context.MediaItem.Count(mi => mi.IdMediaItem == id) > 0;
     }
   }
 }
