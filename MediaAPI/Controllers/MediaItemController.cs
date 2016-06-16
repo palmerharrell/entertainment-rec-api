@@ -46,7 +46,10 @@ namespace MediaAPI.Controllers
                                         Finished = mi.Finished,
                                         Favorite = mi.Favorite,
                                         Rating = mi.Rating,
-                                        DateAdded = mi.DateAdded
+                                        DateAdded = mi.DateAdded,
+                                        Type = (from mt in _context.MediaType
+                                                where mt.IdMediaType == mi.IdMediaType
+                                                select mt.Name).Single()
                                       };
 
       if (mediaItems.Count() == 0)
