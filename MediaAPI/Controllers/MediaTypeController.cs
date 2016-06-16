@@ -29,6 +29,7 @@ namespace MediaAPI.Controllers
       IQueryable<object> mediaTypes = from mt in _context.MediaType
                                          select new
                                          {
+                                           IdMediaType = mt.IdMediaType,
                                            Name = mt.Name,
                                            ColorName = mt.ColorName,
                                            ColorLight = mt.ColorLight,
