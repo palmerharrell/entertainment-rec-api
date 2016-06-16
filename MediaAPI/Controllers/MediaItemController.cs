@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using MediaAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace MediaAPI.Controllers
 {
@@ -60,12 +61,44 @@ namespace MediaAPI.Controllers
       return Ok(mediaItems);
     }
 
-
-
-    // POST api/values
-    [HttpPost]
-    public void Post([FromBody]string value)
+    // GET api/mediaitem/5 (specific mediaItem by id)
+    [HttpGet("{id}", Name = "GetMediaItem")]
+    public IActionResult Get(int id)
     {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      MediaItem mediaItem = _context.MediaItem.Single(mi => mi.IdMediaItem == id);
+
+      if (mediaItem == null)
+      {
+        return NotFound();
+      }
+
+      return Ok(mediaItem);
+    }
+
+    // POST api/mediaitem
+    [HttpPost]
+    public IActionResult Post([FromBody]MediaItem mediaItem)
+    {
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
+
+      _context.MediaItem.Add(mediaItem);
+      try
+      {
+        _context.SaveChanges();
+      }
+      catch (DbUpdateException)
+      {
+        throw;
+      }
+      return CreatedAtRoute("GetMediaItem", new { id = mediaItem.IdMediaItem }, mediaItem);
     }
 
     // PUT api/values/5
