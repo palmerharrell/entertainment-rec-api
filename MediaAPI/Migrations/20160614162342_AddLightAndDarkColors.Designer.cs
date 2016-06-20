@@ -8,9 +8,10 @@ using MediaAPI.Models;
 namespace MediaAPI.Migrations
 {
     [DbContext(typeof(MediaDbContext))]
-    partial class MediaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20160614162342_AddLightAndDarkColors")]
+    partial class AddLightAndDarkColors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.0-rc2-20901")
@@ -70,8 +71,6 @@ namespace MediaAPI.Migrations
                     b.Property<string>("ColorDark");
 
                     b.Property<string>("ColorLight");
-
-                    b.Property<string>("ColorName");
 
                     b.Property<string>("Name");
 
